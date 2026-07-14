@@ -11,12 +11,18 @@ class SerdosController extends Controller
 {
     public function __construct(protected SerdosService $serdosService) {}
 
-    public function index()
-    {
-        $pegawai = auth()->user()->pegawai;
-        $surat   = $this->serdosService->getByPegawai($pegawai->id);
+   public function index()
+{
+    $pegawai = auth()->user()->pegawai;
+
+    if (!$pegawai) {
+        $surat = collect();
         return view('serdos.index', compact('surat', 'pegawai'));
     }
+
+    $surat = $this->serdosService->getByPegawai($pegawai->id);
+    return view('serdos.index', compact('surat', 'pegawai'));
+}
 
     public function create()
     {
