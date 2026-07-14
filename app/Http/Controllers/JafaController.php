@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\JafaService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class JafaController extends Controller
 {
@@ -62,8 +63,11 @@ class JafaController extends Controller
             'file_scan' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
-        $path = $request->file('file_scan')->store('scan-jafa', 'public');
-        $this->jafaService->uploadScan($id, $path);
+        $uploaded = Cloudinary::upload(
+            $request->file('file_scan')->getRealPath(),
+            ['folder' => 'scan-jafa', 'resource_type' => 'auto']
+        );
+        $this->jafaService->uploadScan($id, $uploaded->getSecurePath());
 
         return back()->with('success', 'File scan berhasil diupload.');
     }

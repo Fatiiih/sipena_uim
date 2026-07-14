@@ -74,7 +74,7 @@
     @else
     <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-700">
         ✅ File SK sudah diupload.
-        <a href="{{ asset('storage/' . $sk->file_sk) }}" target="_blank" class="underline ml-1">Lihat File</a>
+        <a href="{{ $sk->file_sk }}" target="_blank" class="underline ml-1">Lihat File</a>
     </div>
     @endif
 

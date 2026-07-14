@@ -16,7 +16,7 @@
                     {{ $jafa->jabatan_fungsional_sekarang }} → <strong>{{ $jafa->jabatan_fungsional_diajukan }}</strong>
                 </p>
                 @if($jafa->file_scan)
-                    <a href="{{ asset('storage/' . $jafa->file_scan) }}" target="_blank"
+                    <a href="{{ $jafa->file_scan }}" target="_blank"
                         class="text-xs text-green-600 hover:underline mt-1 inline-block">
                         📎 Lihat Scan TTD Rektor
                     </a>
@@ -61,7 +61,7 @@
                     {{ $s->program_studi }} | {{ $s->bidang_ilmu }}
                 </p>
                 @if($s->file_scan)
-                    <a href="{{ asset('storage/' . $s->file_scan) }}" target="_blank"
+                    <a href="{{ $s->file_scan }}" target="_blank"
                         class="text-xs text-green-600 hover:underline mt-1 inline-block">
                         📎 Lihat Scan TTD Rektor
                     </a>

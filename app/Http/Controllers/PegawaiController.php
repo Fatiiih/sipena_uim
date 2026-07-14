@@ -11,6 +11,7 @@ use Spatie\Permission\Models\Role;
 use App\Exports\PegawaiExport;
 use App\Imports\PegawaiImport;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class PegawaiController extends Controller
 {
@@ -50,18 +51,13 @@ class PegawaiController extends Controller
 
         $data = $request->all();
 
-        // Handle foto upload
+        // Handle foto upload -> Cloudinary
         if ($request->hasFile('foto')) {
-            $file     = $request->file('foto');
-            $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
-            $destPath = public_path('foto-pegawai');
-
-            if (!file_exists($destPath)) {
-                mkdir($destPath, 0777, true);
-            }
-
-            $file->move($destPath, $filename);
-            $data['foto'] = 'foto-pegawai/' . $filename;
+            $uploaded = Cloudinary::upload(
+                $request->file('foto')->getRealPath(),
+                ['folder' => 'foto-pegawai']
+            );
+            $data['foto'] = $uploaded->getSecurePath();
         }
 
         $this->pegawaiService->create($data);
@@ -97,18 +93,13 @@ class PegawaiController extends Controller
 
         $data = $request->all();
 
-        // Handle foto upload
+        // Handle foto upload -> Cloudinary
         if ($request->hasFile('foto')) {
-            $file     = $request->file('foto');
-            $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
-            $destPath = public_path('foto-pegawai');
-
-            if (!file_exists($destPath)) {
-                mkdir($destPath, 0777, true);
-            }
-
-            $file->move($destPath, $filename);
-            $data['foto'] = 'foto-pegawai/' . $filename;
+            $uploaded = Cloudinary::upload(
+                $request->file('foto')->getRealPath(),
+                ['folder' => 'foto-pegawai']
+            );
+            $data['foto'] = $uploaded->getSecurePath();
         }
 
         $this->pegawaiService->update($id, $data);
@@ -141,13 +132,15 @@ class PegawaiController extends Controller
     }
 
     // Export Excel
+    // CATATAN: pakai storage_path('app/') biasa (bukan '/public/'), dan hapus
+    // '/tmp/' prefix ini WAJIB di Vercel karena hanya folder /tmp yang writable.
     public function exportExcel()
     {
         $export      = new PegawaiExport();
         $spreadsheet = $export->download();
         $writer      = new Xlsx($spreadsheet);
         $filename    = 'data-pegawai-' . now()->format('Ymd') . '.xlsx';
-        $path        = storage_path('app/public/' . $filename);
+        $path        = sys_get_temp_dir() . '/' . $filename;
         $writer->save($path);
 
         return response()->download($path)->deleteFileAfterSend(true);
@@ -185,7 +178,7 @@ class PegawaiController extends Controller
 
         $writer   = new Xlsx($spreadsheet);
         $filename = 'template-import-pegawai.xlsx';
-        $path     = storage_path('app/public/' . $filename);
+        $path     = sys_get_temp_dir() . '/' . $filename;
         $writer->save($path);
 
         return response()->download($path)->deleteFileAfterSend(true);
@@ -198,15 +191,20 @@ class PegawaiController extends Controller
             'file_import' => 'required|file|mimes:xlsx,xls|max:2048',
         ]);
 
-        $path = $request->file('file_import')->store('imports', 'local');
+        // Simpan sementara ke /tmp (bukan storage/app) karena filesystem
+        // Vercel read-only kecuali folder /tmp
+        $tmpPath = sys_get_temp_dir() . '/' . Str::ulid() . '.' . $request->file('file_import')->getClientOriginalExtension();
+        $request->file('file_import')->move(dirname($tmpPath), basename($tmpPath));
 
         $import = new PegawaiImport();
-        $import->import(storage_path('app/' . $path));
+        $import->import($tmpPath);
 
         $message = "Berhasil import {$import->success} pegawai.";
         if (!empty($import->errors)) {
             $message .= ' Terdapat ' . count($import->errors) . ' baris error: ' . implode(' | ', $import->errors);
         }
+
+        @unlink($tmpPath);
 
         return redirect()->route('pegawai.index')->with('success', $message);
     }
@@ -217,20 +215,15 @@ class PegawaiController extends Controller
             'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $file     = $request->file('foto');
-        $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
-        $destPath = public_path('foto-pegawai');
-
-        if (!file_exists($destPath)) {
-            mkdir($destPath, 0777, true);
-        }
-
-        $file->move($destPath, $filename);
+        $uploaded = Cloudinary::upload(
+            $request->file('foto')->getRealPath(),
+            ['folder' => 'foto-pegawai']
+        );
 
         $pegawai       = Pegawai::findOrFail($id);
-        $pegawai->foto = 'foto-pegawai/' . $filename;
+        $pegawai->foto = $uploaded->getSecurePath();
         $pegawai->save();
 
-        return response()->json(['foto' => 'foto-pegawai/' . $filename]);
+        return response()->json(['foto' => $uploaded->getSecurePath()]);
     }
 }

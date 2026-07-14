@@ -12,7 +12,7 @@
     }
   ],
   "routes": [
-    { "src": "/(css|js|images|favicon.ico|storage)/(.*)", "dest": "/public/$1" },
+    { "src": "/(css|js|images|favicon.ico|storage|build)/(.*)", "dest": "/public/$1" },
     { "src": "/(.*)", "dest": "/api/index.php" }
   ]
 }

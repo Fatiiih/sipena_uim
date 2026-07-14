@@ -7,6 +7,7 @@ use App\Services\SuratKeputusanService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class SuratKeputusanController extends Controller
 {
@@ -99,8 +100,11 @@ class SuratKeputusanController extends Controller
         $request->validate([
             'file_sk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
-        $path = $request->file('file_sk')->store('file-sk', 'public');
-        $this->skService->uploadFileSK($id, $path);
+        $uploaded = Cloudinary::upload(
+            $request->file('file_sk')->getRealPath(),
+            ['folder' => 'file-sk', 'resource_type' => 'auto']
+        );
+        $this->skService->uploadFileSK($id, $uploaded->getSecurePath());
         return back()->with('success', 'File SK berhasil diupload.');
     }
 
