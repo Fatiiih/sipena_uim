@@ -7,7 +7,7 @@
 {{-- ── Hero Profil ── --}}
 <div class="bg-[#1E3A5F] mb-6 p-5 lg:p-6 rounded-2xl text-white">
     <div class="flex items-center gap-4">
-        <img src="{{ $pegawai?->foto ? asset('storage/'.$pegawai->foto) : 'https://ui-avatars.com/api/?name='.urlencode($pegawai?->nama_lengkap ?? auth()->user()->name).'&background=ffffff&color=1E3A5F' }}"
+        <img src="{{ $pegawai?->foto ? (str_starts_with($pegawai->foto, 'http') ? $pegawai->foto : asset('storage/'.$pegawai->foto)) : 'https://ui-avatars.com/api/?name='.urlencode($pegawai?->nama_lengkap ?? auth()->user()->name).'&background=ffffff&color=1E3A5F' }}"
             class="w-16 h-16 rounded-2xl object-cover border-2 border-white/30 flex-shrink-0">
         <div class="flex-1 min-w-0">
             <p class="text-blue-200 text-xs">Selamat datang kembali,</p>
