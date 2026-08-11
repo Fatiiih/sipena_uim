@@ -13,6 +13,13 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             app(\App\Services\KontrakKerjaService::class)->cekKontrakAkanBerakhir();
         })->dailyAt('08:00')->name('cek-kontrak-berakhir');
+    // Reset cuti setiap 1 Januari jam 00.00
+    $schedule->call(function () {
+        \App\Models\Pegawai::where('status', 'aktif')
+            ->update(['sisa_cuti' => 12]);
+    })->yearlyOn(1, 1, '00:00')->name('reset-cuti-tahunan');
+
+    // ... scheduler kontrak yang sudah ada
     }
 
     protected function commands(): void
@@ -20,4 +27,5 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
         require base_path('routes/console.php');
     }
+    
 }

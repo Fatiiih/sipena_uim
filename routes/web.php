@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('laporan/lembur', [LaporanController::class, 'lembur'])->name('laporan.lembur');
         Route::get('laporan/lembur/pdf', [LaporanController::class, 'lemburPdf'])->name('laporan.lembur.pdf');
         Route::get('laporan/jafa-serdos', [LaporanController::class, 'jafaSerdos'])->name('laporan.jafa-serdos');
+        Route::post('pegawai/reset-cuti', [PegawaiController::class, 'resetCutiTahunan'])->name('pegawai.reset-cuti');
     });
 
     // ── Pejabat Struktural ────────────────────────────────────────────────────

@@ -79,7 +79,7 @@ class ApprovalService
                         'success',
                     );
 
-                    // ✅ Cross-notifikasi ke semua pimpinan unit
+                    // Cross-notifikasi ke semua pimpinan unit
                     $this->notifikasiService->kirimCrossNotifikasi($pengajuan);
                 }
             }

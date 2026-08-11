@@ -191,8 +191,7 @@ class PegawaiController extends Controller
             'file_import' => 'required|file|mimes:xlsx,xls|max:2048',
         ]);
 
-        // Simpan sementara ke /tmp (bukan storage/app) karena filesystem
-        // Vercel read-only kecuali folder /tmp
+        
         $tmpPath = sys_get_temp_dir() . '/' . Str::ulid() . '.' . $request->file('file_import')->getClientOriginalExtension();
         $request->file('file_import')->move(dirname($tmpPath), basename($tmpPath));
 
@@ -226,4 +225,12 @@ class PegawaiController extends Controller
 
         return response()->json(['foto' => $uploaded->getSecurePath()]);
     }
+    public function resetCutiTahunan()
+{
+    \App\Models\Pegawai::where('status', 'aktif')
+        ->update(['sisa_cuti' => 12]);
+
+    return redirect()->route('pegawai.index')
+        ->with('success', 'Sisa cuti seluruh pegawai aktif berhasil direset ke 12 hari.');
+}
 }
