@@ -111,6 +111,13 @@
         Hapus
     </button>
 </form>
+<form action="{{ route('pegawai.reset-cuti') }}" method="POST" class="inline"
+    onsubmit="return confirm('Yakin reset sisa cuti semua pegawai aktif ke 12 hari? Pastikan ini dilakukan di awal tahun!')">
+    @csrf
+    <button class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-700">
+        🔄 Reset Cuti Tahunan
+    </button>
+</form>
                         </div>
                     </td>
                 </tr>
